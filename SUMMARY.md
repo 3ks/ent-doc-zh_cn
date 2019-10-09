@@ -4,20 +4,20 @@
 
 ## 开始使用
 
-* [简介](kai-shi-shi-yong/jian-jie.md)
+* [简介](Getting Started/Getting Started.md)
 
 ## Schema
 
-* [Introduction](schema/introduction.md)
-* [Fields](schema/fields.md)
-* [Edges](schema/edges.md)
-* [Untitled](schema/untitled.md)
+* [Introduction](Schema/introduction.md)
+* [Fields](Schema/fields.md)
+* [Edges](Schema/edges.md)
+* [Untitled](Schema/untitled.md)
 
 ## 代码生成
 
-* [介绍](dai-ma-sheng-cheng/jie-shao.md)
+* [介绍](Code Generation/Code Generation.md)
 
 ## 迁移
 
-* [数据库迁移](qian-yi/shu-ju-ku-qian-yi.md)
+* [数据库迁移](Migration/Migration.md)
 
