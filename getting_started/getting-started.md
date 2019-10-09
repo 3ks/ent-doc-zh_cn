@@ -4,32 +4,34 @@ title: Quick Introduction
 sidebar_label: Quick Introduction
 ---
 
-`ent` is a simple, yet powerful entity framework for Go built on SQL/Gremlin with the following principles:
-- Easily modeling your data as a graph structure.
-- Defining your schema as code.
-- Static typing based on code generation.
-- Simplifying graph traversals.
+`ent` 是一个基于 SQL/Gremlin 构建的易于使用但功能强大的 Go Entity 框架，其遵循以下原则：
+- 轻松将你的数据建模为表。
+- 使用代码定义表。
+- 基于代码生成静态类型。
+- 精简的多表查询。
 
 <br/>
 
 ![gopher-schema-as-code](https://entgo.io/assets/gopher-schema-as-code.png)
 
-## Installation
+## 安装
 
 ```console
 go get github.com/facebookincubator/ent/cmd/entc
 ```
 
-After installing `entc` (the code generator for `ent`), you should have it in your `PATH`.
+完成 `entc` (为 `ent` 生成代码) 的安装后, 你应该将其放入 `PATH` 中。
 
-## Create Your First Schema
+## 创建第一个 Schema
 
-Go to the root directory of your project, and run:
+> 译者注：Schema 在不同数据库下含义有所不同，ent 中的 Schema 可以简单的理解为 `表`,`Table`。 
+
+进行你的项目根目录，并运行命令：
 
 ```console
 entc init User
 ```
-The command above will generate the schema for `User` under `<project>/ent/schema/` directory:
+上面的命令将在 `<project>/ent/schema/` 目录下为 `User` 生成 Schema.
 
 ```go
 // <project>/ent/schema/user.go
@@ -38,17 +40,18 @@ package schema
 
 import "github.com/facebookincubator/ent"
 
-// User holds the schema definition for the User entity.
+// User 持有 User 实体的 Schemer 定义。
 type User struct {
 	ent.Schema
 }
 
-// Fields of the User.
+// User 的字段
 func (User) Fields() []ent.Field {
 	return nil
 }
 
-// Edges of the User.
+// User 的 Edge 
+//
 func (User) Edges() []ent.Edge {
 	return nil
 }

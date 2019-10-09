@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-* [快速开始](getting_started/getting-started.md)
+* [快速入门](getting_started/getting-started.md)
 
 ## Schema
 
