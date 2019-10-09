@@ -10,7 +10,7 @@ will generate the following assets:
 - CRUD builders for each schema type. See [CRUD](crud.md) for more info.
 - Entity object (Go struct) for each of the schema type.
 - Package containing constants and predicates used for interacting with the builders.
-- A `migrate` package for SQL dialects. See [Migration](../Migration/migrate.md) for more info.
+- A `migrate` package for SQL dialects. See [Migration](../migration/migrate.md) for more info.
 
 ## Create A New Client
 

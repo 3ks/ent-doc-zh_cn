@@ -1,32 +1,32 @@
 # Table of contents
 
-* [译者的废话](README.md)
+* [ent 中文文档](README.md)
 
-## 开始使用
+## Getting Started
 
-* [简介](Getting Started/getting-started.md)
+* [快速开始](getting_started/getting-started.md)
 
 ## Schema
 
-* [介绍](Schema/schema-def.md)
-* [字段](Schema/schema-fields.md)
-* [边缘](Schema/schema-edges.md)
-* [索引](Schema/schema-indexes.md)
-* [配置](Schema/schema-config.md)
-* [混淆](Schema/schema-mixin.md)
+* [介绍](schema/schema-def.md)
+* [字段](schema/schema-fields.md)
+* [Edges](schema/schema-edges.md)
+* [索引](schema/schema-indexes.md)
+* [配置](schema/schema-config.md)
+* [Mixin](schema/schema-mixin.md)
 
-## 代码生成
+## Code Generation
 
-* [介绍](Code Generation/code-gen.md)
-* [CRUD API](Code Generation/crud.md)
-* [遍历视图](Code Generation/traversals.md)
-* [聚合](Code Generation/aggregate.md)
-* [条件](Code Generation/predicates.md)
-* [分页和排序](Code Generation/paging.md)
-* [事务](Code Generation/transactions.md)
+* [代码生成介绍](code_generation/code-gen.md)
+* [增查改删 API](code_generation/crud.md)
+* [Graph Traversal](code_generation/traversals.md)
+* [数据聚合](code_generation/aggregate.md)
+* [条件查询](code_generation/predicates.md)
+* [分页和排序](code_generation/paging.md)
+* [事务](code_generation/transactions.md)
 
-## 迁移
+## Migration
 
-* [数据库迁移](Migration/migrate.md)
-* [支持的方言](Migration/dialects.md)
+* [数据库迁移](migration/migrate.md)
+* [支持的方言](migration/dialects.md)
 

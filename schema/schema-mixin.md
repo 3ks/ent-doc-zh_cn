@@ -50,7 +50,7 @@ func (DetailsMixin) Fields() []ent.Field {
 }
 
 // -------------------------------------------------
-// Schema definition
+schema
 
 // User schema mixed-in the TimeMixin and DetailsMixin fields and therefore
 // has 5 fields: `created_at`, `updated_at`, `age`, `name` and `nickname`.

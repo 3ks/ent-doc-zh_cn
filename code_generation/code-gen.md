@@ -26,7 +26,7 @@ is to have an `ent` directory under the root directory of the project.
 
 ## Generate Assets
 
-After adding a few [fields](../Schema/schema-fields.md) and [edges](../Schema/schema-edges.md), you want to generate
+After adding a few [fields](../schema/schema-fields.md) and [edges](../schema/schema-edges.md), you want to generate
 the assets for working with your entities. Run the following command:
 
 ```bash
@@ -39,7 +39,7 @@ The `generate` command generates the following assets for the schemas:
 - CRUD builders for each schema type. See [CRUD](crud.md) for more info.
 - Entity object (Go struct) for each of the schema types.
 - Package containing constants and predicates used for interacting with the builders.
-- A `migrate` package for SQL dialects. See [Migration](../Migration/migrate.md) for more info.
+- A `migrate` package for SQL dialects. See [Migration](../migration/migrate.md) for more info.
 
 ## Version Compatibility Between `entc` And `ent`
 
