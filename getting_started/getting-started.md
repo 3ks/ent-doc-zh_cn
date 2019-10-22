@@ -5,10 +5,10 @@ sidebar_label: Quick Introduction
 ---
 
 `ent` 是一个基于 SQL/Gremlin 构建的易于使用但功能强大的 Go Entity 框架，其遵循以下原则：
-- 轻松将你的数据建模为表。
-- 使用代码定义表。
+- 轻松将你的数据建模为图结构。
+- 使用代码定义模式。
 - 基于代码生成静态类型。
-- 精简的多表查询。
+- 精简的图遍历。
 
 <br/>
 
@@ -22,16 +22,14 @@ go get github.com/facebookincubator/ent/cmd/entc
 
 完成 `entc` (为 `ent` 生成代码) 的安装后, 你应该将其放入 `PATH` 中。
 
-## 创建第一个 Schema
-
-> 译者注：Schema 在不同数据库下含义有所不同，ent 中的 Schema 可以简单的理解为 `表`,`Table`。 
+## 创建第一个模式 (Schema)
 
 进行你的项目根目录，并运行命令：
 
 ```console
 entc init User
 ```
-上面的命令将在 `<project>/ent/schema/` 目录下为 `User` 生成 Schema.
+上面的命令将在 `<project>/ent/schema/` 目录下为 `User` 生成模式.
 
 ```go
 // <project>/ent/schema/user.go
@@ -40,25 +38,23 @@ package schema
 
 import "github.com/facebookincubator/ent"
 
-// User 持有 User 实体的 Schemer 定义。
+// User holds the schema definition for the User entity.
 type User struct {
-	ent.Schema
+    ent.Schema
 }
 
-// User 的字段
+// Fields of the User.
 func (User) Fields() []ent.Field {
-	return nil
+    return nil
 }
 
-// User 的 Edge 
-//
+// Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+    return nil
 }
-
 ```
 
-Add 2 fields to the `User` schema:
+为 `User` 模式添加两个字段：
 
 ```go
 package schema
@@ -80,13 +76,13 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-Run `entc generate` from the root directory of the project:
+在项目根目录运行命令 `entc generate`:
 
 ```go
 entc generate ./ent/schema
 ```
 
-This produces the following files:
+会生成以下文件：
 ```
 ent
 ├── client.go
@@ -113,9 +109,10 @@ ent
 ```
 
 
-## Create Your First Entity
+## 创建第一个实体（Entity）
 
 To get started, create a new `ent.Client`. For this example, we will use SQLite3.
+开始, 创建一个新的 `ent.Client`. 在这个例子中，我们将使用 SQLite3.
 
 ```go
 package main
@@ -134,14 +131,14 @@ func main() {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
 	defer client.Close()
-	// run the auto migration tool.
+	// 运行自动迁移工具。
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 }
 ```
 
-Now, we're ready to create our user. Let's call this function `CreateUser` for the sake of example:
+现在，我们可以创建我们的用户了. 调用函数 `CreateUser` :
 ```go
 func CreateUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
 	u, err := client.User.
@@ -157,10 +154,9 @@ func CreateUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
 }
 ```
 
-## Query Your Entities
+## 查询实体
 
-`entc` generates a package for each entity schema that contains its predicates, default values, validators
-and additional information about storage elements (column names, primary keys, etc).
+`entc` 会为每个实体的模式生成到一个包内，并包含条件，默认值，验证器和存储相关的附加信息（列名，主键等）。
 
 ```go
 package main
@@ -176,8 +172,8 @@ func QueryUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
 	u, err := client.User.
 		Query().
 		Where(user.NameEQ("a8m")).
-		// `Only` fails if no user found,
-		// or more than 1 user returned.
+        // `Only` 会查询失败，
+        // 当未找到用户或找到多个（大于一个）用户时，
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed querying user: %v", err)
@@ -190,15 +186,16 @@ func QueryUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
 
 
 ## Add Your First Edge (Relation)
-In this part of the tutorial, we want to declare an edge (relation) to another entity in the schema.  
-Let's create 2 additional entities named `Car` and `Group` with a few fields. We use `entc`
-to generate the initial schemas:
+## 添加第一个边 (关系)
+在教程的这部分，我们要声明 `边` (关系) 到模式的另一个实体。
+让我们创建另外两个名为 `Car` 和 `Group` 且有一些字段的实体。
+我们使用 `entc` 去生成初始模式。
 
 ```console
 entc init Car Group
 ```
 
-And then we add the rest of the fields manually:
+然后我们手动添加剩下的字段：
 ```go
 import (
 	"regexp"
@@ -207,7 +204,7 @@ import (
 	"github.com/facebookincubator/ent/schema/field"
 )
 
-// Fields of the Car.
+// Fields of the Car (car.go). 
 func (Car) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("model"),
@@ -216,22 +213,23 @@ func (Car) Fields() []ent.Field {
 }
 
 
-// Fields of the Group.
+// Fields of the Group (group.go).
 func (Group) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").
-			// regexp validation for group name.
+			// 正则验证 group 名.
 			Match(regexp.MustCompile("[a-zA-Z_]+$")),
 	}
 }
 ```
 
-Let's define our first relation. An edge from `User` to `Car` defining that a user
-can **have 1 or more** cars, but a car **has only one** owner (one-to-many relation).
+定义我们的第一个关系，定义一个从 `User` 到 `Car` 的边：
+一个用户可以 **有一辆或多辆** 汽车，但是一辆汽车 **只有一个** 车主 （一对多关系）。
 
 ![er-user-cars](https://entgo.io/assets/re_user_cars.png)
 
 Let's add the `"cars"` edge to the `User` schema, and run `entc generate ./ent/schema`:
+让我们添加 `"cars"` 的边到 `User` 的模式中, 然后运行 `entc generate ./ent/schema`:
 
  ```go
  import (
@@ -250,6 +248,7 @@ Let's add the `"cars"` edge to the `User` schema, and run `entc generate ./ent/s
  ```
 
 We continue our example by creating 2 cars and adding them to a user.
+我们继续我们的实例： 创建两辆车并将它们添加给一个用户
 ```go
 func CreateCars(ctx context.Context, client *ent.Client) (*ent.User, error) {
 	// creating new car with model "Tesla".
