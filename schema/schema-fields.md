@@ -7,10 +7,12 @@ title: Fields
 
 Fields (or properties) in the schema are the attributes of the vertex. For example, a `User`
 with 4 fields: `age`, `name`, `username` and `created_at`:
+模式中的字段相当于顶点的属性。
+例如，`User` 有 4 个字段： `age`, `name`, `username` 和 `created_at`.
 
 ![re-fields-properties](https://entgo.io/assets/er_fields_properties.png)
 
-Fields are returned from the schema using the `Fields` method. For example:
+模式的 `Fields` 方法可以返回字段列表。例如:
 
 ```go
 package schema
@@ -40,19 +42,19 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-All fields are required by default, and can be set to optional using the `Optional` method.
+默认情况下，所有字段都是必填的，但是可以使用 `Optional` 方法将其设置为可选的。
 
-## Types
+## 类型
 
-The following types are currently supported by the framework:
+`ent` 目前支持以下类型：
 
-- All Go numeric types. Like `int`, `uint8`, `float64`, etc.
+- go 的全部数值类型。如： `int`, `uint8`, `float64` 等等.
 - `bool`
 - `string`
 - `time.Time`
-- `[]byte` (only supported by SQL dialects).
-- `JSON` (only supported by SQL dialects) - **experimental**.
-- `Enum` (only supported by SQL dialects).
+- `[]byte` (只支持 SQL 方言).
+- `JSON` (只支持 SQL 方言) - **实验性**.
+- `Enum` (只支持 SQL 方言).
 
 <br/>
 
@@ -96,11 +98,11 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-To read more about how each type is mapped to its database-type, go to the [Migration](migrate.md) section.
+要了解有关每种类型如何映射到其数据库类型的更多细节，请转到 [Migration](../migration/migrate.md) 部分。
 
-## Default Values
+## 默认值
 
-**Non-unique** fields support default values using the `.Default` and `.UpdateDefault` methods.
+**非唯一** 字段支持通过 `.Default` 或 `.UpdateDefault` 方法设置默认值.
 
 ```go
 // Fields of the User.
@@ -115,11 +117,9 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-## Validators
+## 验证器
 
-A field validator is a function from type `func(T) error` that is defined in the schema
-using the `Validate` method, and applied on the field value before creating or updating
-the entity.
+字段验证器是类型的 `func(T) error` 函数，其使用模式中的 `Validate` 方法定义，并应用在创建或更新实体之前。
 
 The supported types of field validators are `string` and all numeric types.
 
