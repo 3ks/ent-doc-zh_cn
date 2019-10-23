@@ -3,11 +3,11 @@ id: sql-integration
 title: sql.DB Integration
 ---
 
-The following examples show how to pass a custom `sql.DB` object to `ent.Client`.
+下面的示例将说明如何将自定义 `sql.DB`对象传递给 `ent.Client`.
 
-## Configure `sql.DB`
+## 配置 `sql.DB`
 
-First option:
+方法一：
 
 ```go
 package main
@@ -24,7 +24,7 @@ func Open() (*ent.Client, error) {
     if err != nil {
     	return nil, err
     }
-    // Get the underlying sql.DB object of the driver.
+    // 获取驱动的底层 sql.DB 对象。
     db := drv.DB()
     db.SetMaxIdleConns(10)
     db.SetMaxOpenConns(100)
@@ -33,7 +33,7 @@ func Open() (*ent.Client, error) {
 }
 ```
 
-Second option:
+方法二：
 
 ```go
 package main
@@ -55,12 +55,15 @@ func Open() (*ent.Client, error) {
     db.SetMaxOpenConns(100)
     db.SetConnMaxLifetime(time.Hour)
     // Create an ent.Driver from `db`.
+    // 从 `db` 创建一个 ent.Driver.
     drv := entsql.OpenDB("mysql", db)
     return ent.NewClient(ent.Driver(drv)), nil
 }
 ```
 
-## Use Opencensus With MySQL
+## 在 MySQL 中使用 Opencensus
+
+> 译者注：OpenCensus 是 Google 开源的一个用来收集和追踪应用程序指标的第三方库。目前 Opencensus 已经与 OpenTracing [合并](https://www.cncf.io/blog/2019/05/21/a-brief-history-of-opentelemetry-so-far/)
 
 ```go
 package main
@@ -95,10 +98,10 @@ func (connector) Driver() driver.Driver {
 	)
 }
 
-// Open new connection and start stats recorder.
+// 打开新的连接并启动统计记录器。
 func Open(dsn string) *ent.Client {
 	db := sql.OpenDB(connector{dsn})
-	// Create an ent.Driver from `db`.
+	// 从 `db` 创建一个 ent.Driver.
     drv := entsql.OpenDB("mysql", db)
     return ent.NewClient(ent.Driver(drv))
 }
