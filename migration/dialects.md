@@ -5,14 +5,12 @@ title: Supported Dialects
 
 ## MySQL
 
-MySQL supports all the features that are mentioned in the [Migration](migrate.md) section,
-and it's being tested constantly on the following 3 versions: `5.6.35`, `5.7.26` and `8`. 
+MySQL 支持所有在 [迁移](migrate.md) 部分提到的功能，并且我们正在：5.6.35, 5.7.26, 8 三个版本中测试它。
 
 ## SQLite
 
-SQLite was developed only for testing, and it does not support the incremental updates for tables.
-
+SQLite 仅用于测试而开发，它不支持表的增量更新（incremental updates）。
 
 ## Gremlin
 
-Gremlin does not support migration nor indexes, and **<ins>it's considered experimental</ins>**.
+Gremlin 不支持迁移和索引，并且 **<ins>Gremlin 被认为是实验性的</ins>**。
