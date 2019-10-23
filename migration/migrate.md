@@ -12,7 +12,7 @@ Run the auto-migration logic in the initialization of the application:
 
 ```go
 if err := client.Schema.Create(ctx); err != nil {
-	log.Fatalf(Schema, err)
+	log.Fatalf("failed creating schema resources: %v", err)
 }
 ```
 

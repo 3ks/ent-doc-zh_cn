@@ -45,7 +45,7 @@ func (Pet) Edges() []ent.Edge {
 `ent/schema/user.go`
 
 ```go
-Schema
+// User holds the schema definition for the User entity.
 type User struct {
 	ent.Schema
 }

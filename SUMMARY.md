@@ -30,3 +30,6 @@
 * [数据库迁移](migration/migrate.md)
 * [支持的方言](migration/dialects.md)
 
+## 杂项
+
+* [sql.DB 集成](misc/sql-integration.md)
