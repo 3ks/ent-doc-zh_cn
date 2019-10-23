@@ -111,8 +111,7 @@ ent
 
 ## 创建第一个实体（Entity）
 
-To get started, create a new `ent.Client`. For this example, we will use SQLite3.
-开始, 创建一个新的 `ent.Client`. 在这个例子中，我们将使用 SQLite3.
+首先, 创建一个新的 `ent.Client`. 在这个例子中，我们将使用 SQLite3.
 
 ```go
 package main
@@ -185,8 +184,8 @@ func QueryUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
 ```
 
 
-## Add Your First Edge (Relation)
 ## 添加第一个边 (关系)
+
 在教程的这部分，我们要声明 `边` (关系) 到模式的另一个实体。
 让我们创建另外两个名为 `Car` 和 `Group` 且有一些字段的实体。
 我们使用 `entc` 去生成初始模式。
@@ -228,7 +227,6 @@ func (Group) Fields() []ent.Field {
 
 ![er-user-cars](https://entgo.io/assets/re_user_cars.png)
 
-Let's add the `"cars"` edge to the `User` schema, and run `entc generate ./ent/schema`:
 让我们添加 `"cars"` 的边到 `User` 的模式中, 然后运行 `entc generate ./ent/schema`:
 
  ```go
@@ -247,11 +245,10 @@ Let's add the `"cars"` edge to the `User` schema, and run `entc generate ./ent/s
  }
  ```
 
-We continue our example by creating 2 cars and adding them to a user.
-我们继续我们的实例： 创建两辆车并将它们添加给一个用户
+下一个实例： 给一个用户添加两辆车。
 ```go
 func CreateCars(ctx context.Context, client *ent.Client) (*ent.User, error) {
-	// creating new car with model "Tesla".
+	// 买一辆 "Tesla".
 	tesla, err := client.Car.
 		Create().
 		SetModel("Tesla").
@@ -261,7 +258,7 @@ func CreateCars(ctx context.Context, client *ent.Client) (*ent.User, error) {
 		return nil, fmt.Errorf("failed creating car: %v", err)
 	}
 
-	// creating new car with model "Ford".
+	// 买一辆 "Ford".
 	ford, err := client.Car.
 		Create().
 		SetModel("Ford").
@@ -272,7 +269,7 @@ func CreateCars(ctx context.Context, client *ent.Client) (*ent.User, error) {
 	}
 	log.Println("car was created: ", ford)
 
-	// create a new user, and add it the 2 cars.
+	// 创建一个用户，并给他添加两辆车。
 	a8m, err := client.User.
 		Create().
 		SetAge(30).
@@ -286,7 +283,7 @@ func CreateCars(ctx context.Context, client *ent.Client) (*ent.User, error) {
 	return a8m, nil
 }
 ```
-But what about querying the `cars` edge (relation)? Here's how we do it:
+怎么查询 `cars` 的边(关系)呢? 我们是这么做的:
 ```go
 import (
 	"log"
@@ -302,7 +299,7 @@ func QueryCars(ctx context.Context, a8m *ent.User) error {
 	}
 	log.Println("returned cars:", cars)
 
-	// what about filtering specific cars.
+	// 筛选特定车型。
 	ford, err := a8m.QueryCars().
 		Where(car.ModelEQ("Ford")).
 		Only(ctx)
@@ -314,18 +311,18 @@ func QueryCars(ctx context.Context, a8m *ent.User) error {
 }
 ```
 
-## Add Your First Inverse Edge (BackRef)
-Assume we have a `Car` object and we want to get its owner; the user that this car belongs to.
-For this, we have another type of edge called "inverse edge" that is defined using the `edge.From`
-function.
+## 添加第一个逆边（反向引用）
+
+假设我们有一个 `Car` 对象，并且我们想知道它的车主；即 `Car` 属于哪个 `User`.
+对于这种情况，我们有另一种叫做 “逆边” 的边类型，他的定义函数是 `edge.From`.
 
 ![er-cars-owner](https://entgo.io/assets/re_cars_owner.png)
 
-The new edge created in the diagram above is translucent, to emphasize that we don't create another
-edge in the database. It's just a back-reference to the real edge (relation).
+上图中半透明部分就是新的边，要强调的是，我们不会在数据库中创建这条边
+它只是对上面的边的反向引用。
 
-Let's add an inverse edge named `owner` to the `Car` schema, reference it to the `cars` edge
-in the `User` schema, and run `entc generate ./ent/schema`.
+让我们为 `Car` 模式添加一个叫 `owner` 的逆边，将其引用至 `User` 模式中的 `cars` 边
+然后运行 `entc generate ./ent/schema`.
 
 ```go
 import (
@@ -338,18 +335,16 @@ import (
 // Edges of the Car.
 func (Car) Edges() []ent.Edge {
 	return []ent.Edge{
-		// create an inverse-edge called "owner" of type `User`
-	 	// and reference it to the "cars" edge (in User schema)
-	 	// explicitly using the `Ref` method.
+        // 创建一个类型为 `User` 名为 "owner" 的逆边
+        // 并且使用 `Ref` 方法明确的将其引用至（User 模式中的） "cars" 边
 	 	edge.From("owner", User.Type).
 	 		Ref("cars").
-			// setting the edge to unique, ensure
-			// that a car can have only one owner.
+            // 指定该边为唯一，确保一辆车只有一个车主。
 			Unique(),
 	}
 }
 ```
-We'll continue the user/cars example above by querying the inverse edge.
+接着上面的 user/cars 例子，我们来查询逆边。 
 
 ```go
 import (
@@ -363,7 +358,7 @@ func QueryCarUsers(ctx context.Context, a8m *ent.User) error {
 	if err != nil {
 		return fmt.Errorf("failed querying user cars: %v", err)
 	}
-	// query the inverse edge.
+	// 查询逆边。
 	for _, ca := range cars {
 		owner, err := ca.QueryOwner().Only(ctx)
 		if err != nil {
@@ -375,16 +370,15 @@ func QueryCarUsers(ctx context.Context, a8m *ent.User) error {
 }
 ```
 
-## Create Your Second Edge
+## 创建第二个边
 
-We'll continue our example by creating a M2M (many-to-many) relationship between users and groups.
+继续看例子，我们将在 users 和 groups 之间创建一个 M2M （多对多）的关系。
 
 ![er-group-users](https://entgo.io/assets/re_group_users.png)
 
-As you can see, each group entity can **have many** users, and a user can **be connected to many** groups;
-a simple "many-to-many" relationship. In the above illustration, the `Group` schema is the owner
-of the `users` edge (relation), and the `User` entity has a back-reference/inverse edge to this
-relationship named `groups`. Let's define this relationship in our schemas:
+如图所示，每个群组实体可以 **拥有多个** 用户，一个用户也可以 **被连接到多个** 群组，一个简单的 “多对多” 关系。
+在上图中，`Group` 模式是 `users` 边（关系）的拥有者， `User` 实体有一个名为 `groups` 的反向引用/逆边。
+开始定义这个多对多关系：
 
 - `<project>/ent/schema/group.go`:
 
@@ -417,24 +411,23 @@ relationship named `groups`. Let's define this relationship in our schemas:
 	 func (User) Edges() []ent.Edge {
 	 	return []ent.Edge{
 			edge.To("cars", Car.Type),
-		 	// create an inverse-edge called "groups" of type `Group`
-		 	// and reference it to the "users" edge (in Group schema)
-		 	// explicitly using the `Ref` method.
+		 	// 创建一个类型为 `Group` 名为 "groups" 的逆边
 			edge.From("groups", Group.Type).
+ 	 	    //  并且使用 `Ref` 方法明确的将其引用至（Group 模式中的） "users" 边
 				Ref("users"),
 	 	}
 	 }
 	```
 
-We run `entc` on the schema directory to re-generate the assets.
+运行 `entc` 重新生成代码。 
 ```console
 entc generate ./ent/schema
 ```
 
-## Run Your First Graph Traversal
+## 运行第一个图遍历
 
-In order to run our first graph traversal, we need to generate some data (nodes and edges, or in other words, 
-entities and relations). Let's create the following graph using the framework:
+为了运行第一个图遍历，我们需要生成一些数据（节点和边，或者说实体和关系）。
+让我们使用 ent 创建下面的图：
 
 ![re-graph](https://entgo.io/assets/re_graph_getting_started.png)
 
@@ -442,7 +435,7 @@ entities and relations). Let's create the following graph using the framework:
 ```go
 
 func CreateGraph(ctx context.Context, client *ent.Client) error {
-	// first, create the users.
+	// 首先创建一个用户
 	a8m, err := client.User.
 		Create().
 		SetAge(30).
@@ -459,12 +452,12 @@ func CreateGraph(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return err
 	}
-	// then, create the cars, and attach them to the users in the creation.
+	// 然后，创建汽车，并指定其拥有者（车主）。
 	_, err = client.Car.
 		Create().
 		SetModel("Tesla").
-		SetRegisteredAt(time.Now()). // ignore the time in the graph.
-		SetOwner(a8m).               // attach this graph to Ariel.
+		SetRegisteredAt(time.Now()). // 忽略图中的时间
+		SetOwner(a8m).               // 指定车主为 Ariel.
 		Save(ctx)
 	if err != nil {
 		return err
@@ -472,8 +465,8 @@ func CreateGraph(ctx context.Context, client *ent.Client) error {
 	_, err = client.Car.
 		Create().
 		SetModel("Mazda").
-		SetRegisteredAt(time.Now()). // ignore the time in the graph.
-		SetOwner(a8m).               // attach this graph to Ariel.
+		SetRegisteredAt(time.Now()). // 忽略图中的时间
+		SetOwner(a8m).               // 指定车主为 Ariel.
 		Save(ctx)
 	if err != nil {
 		return err
@@ -481,13 +474,13 @@ func CreateGraph(ctx context.Context, client *ent.Client) error {
 	_, err = client.Car.
 		Create().
 		SetModel("Ford").
-		SetRegisteredAt(time.Now()). // ignore the time in the graph.
-		SetOwner(neta).              // attach this graph to Neta.
+		SetRegisteredAt(time.Now()). // 忽略图中的时间
+		SetOwner(neta).              // 指定车主为 Neta.
 		Save(ctx)
 	if err != nil {
 		return err
 	}
-	// create the groups, and add their users in the creation.
+	// 创建群组，并同时添加用户。
 	_, err = client.Group.
 		Create().
 		SetName("GitLab").
@@ -509,9 +502,9 @@ func CreateGraph(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-Now when we have a graph with data, we can run a few queries on it:
+现在我们得到了一个有数据的图，我们可以运行一些查询：
 
-1. Get all user's cars within the group named "GitHub":
+1. 获取 "GitHub" 群组所有用户的全部汽车:
 
 	```go
 	import (
@@ -537,7 +530,7 @@ Now when we have a graph with data, we can run a few queries on it:
 	}
 	```
 
-2. Change the query above, so that the source of the traversal is the user *Ariel*:
+2. 修改上面的查询, 将遍历的起源修改为用户 *Ariel* （Ariel 所属群组的用户的汽车）:
 
 	```go
 	import (
@@ -556,13 +549,13 @@ Now when we have a graph with data, we can run a few queries on it:
 				user.Name("Ariel"),
 			).
 			OnlyX(ctx)
-		cars, err := a8m. 						// Get the groups, that a8m is connected to:
+		cars, err := a8m. 						// 首先获取群组，Ariel 所属的群主为:
 				QueryGroups(). 					// (Group(Name=GitHub), Group(Name=GitLab),)
 				QueryUsers().  					// (User(Name=Ariel, Age=30), User(Name=Neta, Age=28),)
 				QueryCars().   					//
 				Where(         					//
-					car.Not( 					//	Get Neta and Ariel cars, but filter out
-						car.ModelEQ("Mazda"),	//	those who named "Mazda"
+					car.Not( 					//	获取 Neta 和 Ariel 的汽车
+						car.ModelEQ("Mazda"),	//	但是这里过滤掉了名为 "Mazda" 的汽车
 					), 							//
 				). 								//
 				All(ctx)
@@ -575,7 +568,7 @@ Now when we have a graph with data, we can run a few queries on it:
 	}
 	```
 
-3. Get all groups that have users (query with a look-aside predicate):
+3. 获取有用户（非空）的群组 (使用自动生成的条件查询):
 
 	```go
 	import (
@@ -599,4 +592,4 @@ Now when we have a graph with data, we can run a few queries on it:
     }
     ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/start).
+完整实例请参考： [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/start).
