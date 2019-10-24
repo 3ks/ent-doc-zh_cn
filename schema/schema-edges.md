@@ -157,16 +157,16 @@ func (User) Edges() []ent.Edge {
 
 继续看一些例子，这些例子示范了如何使用边定义不同的关系。
 
-## Relationship
+## 关系
 
-- [O2O Two Types](#o2o-two-types)
-- [O2O Same Type](#o2o-same-type)
-- [O2O Bidirectional](#o2o-bidirectional)
-- [O2M Two Types](#o2m-two-types)
-- [O2M Same Type](#o2m-same-type)
-- [M2M Two Types](#m2m-two-types)
-- [M2M Same Type](#m2m-same-type)
-- [M2M Bidirectional](#m2m-bidirectional)
+- [两种类型的一对一关系](#两种类型的一对一关系)
+- [同类型的一对一关系](#同类型的一对一关系)
+- [双向的一对一关系](#双向的一对一关系)
+- [不同类型的一对多关系](#不同类型的一对多关系)
+- [同类型的一对多关系](#同类型的一对多关系)
+- [不同类型的多对多关系](#不同类型的多对多关系)
+- [同类型的多对多关系](#同类型的多对多关系)
+- [双向的多对多关系](#双向的多对多关系)
 
 ## 两种类型的一对一关系
 
