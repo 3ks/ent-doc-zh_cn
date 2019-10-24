@@ -52,9 +52,9 @@ func (User) Fields() []ent.Field {
 - `bool`
 - `string`
 - `time.Time`
-- `[]byte` (只支持 SQL 方言).
-- `JSON` (只支持 SQL 方言) - **实验性**.
-- `Enum` (只支持 SQL 方言).
+- `[]byte` (只支持 SQL).
+- `JSON` (只支持 SQL) - **实验性**.
+- `Enum` (只支持 SQL).
 
 <br/>
 
@@ -119,9 +119,9 @@ func (User) Fields() []ent.Field {
 
 ## 验证器
 
-字段验证器是类型的 `func(T) error` 函数，其使用模式中的 `Validate` 方法定义，并应用在创建或更新实体之前。
+字段验证器是类型为 `func(T) error` 的函数，其使用模式中的 `Validate` 方法定义，并应用在创建或更新实体之前。
 
-The supported types of field validators are `string` and all numeric types.
+字段验证器支持 `string` 和所有数值类型。
 
 ```go
 package schema
@@ -157,28 +157,26 @@ func (Group) Fields() []ent.Field {
 }
 ```
 
-## Built-in Validators
+## 内建验证器
 
-The framework provides a few built-in validators for each type:
+`ent` 为支持的每种类型提供了一些内建验证器
 
-- Numeric types:
+- 数值类型:
   - `Positive()`
   - `Negative()`
-  - `Min(i)` - Validate that the given value is > i.
-  - `Max(i)` - Validate that the given value is < i.
-  - `Range(i, j)` - Validate that the given value is within the range [i, j].
+  - `Min(i)` - 验证字段值是否大于 i.
+  - `Max(i)` - 验证字段值是否小于 i.
+  - `Range(i, j)` - 验证字段值是否在 [i, j] 区间。
 
 - `string`
   - `MinLen(i)`
   - `MaxLen(i)`
   - `Match(regexp.Regexp)`
 
-## Optional
+## 可选字段
 
-Optional fields are fields that are not required in the entity creation, and
-will be set to nullable fields in the database.
-Unlike edges, **fields are required by default**, and setting them to
-optional should be done explicitly using the `Optional` method.
+可选字段是实体创建时是非必填的字段，在数据库中将其设置为可空字段。
+不同于边，**字段默认是必填的**，但是可以使用 `Optional` 方法将其设为可选字段。
 
 
 ```go
@@ -192,16 +190,14 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-## Nillable
-Sometimes you want to be able to distinguish between the zero value of fields
-and `nil`; for example if the database column contains `0` or `NULL`.
-The `Nillable` option exists exactly for this.
+## 区分零值
 
-If you have an `Optional` field of type `T`, setting it to `Nillable` will generate
-a struct field with type `*T`. Hence, if the database returns `NULL` for this field,
-the struct field will be `nil`. Otherwise, it will contains a pointer to the actual data.
+`Nillable`, 有时候你想区分字段的零值和 `nil`；例如，你想数据库中某个字段的值，既能为 `0` 又能为 `NULL`。那么 `Nillable` 就是为此而生的。
 
-For example, given this schema:
+如果你有一个可选（`Optional`）的类型 `T` ，将其设为 `Nillable` 会在生成的结构体中得到一个 `*T`.
+因此，如果数据库中的该字段返回 `NULL`，这个类型值为 `nil`. 否则，他将包含一个指向实际数据的指针。
+
+例如，有如下模式：
 ```go
 // Fields of the user.
 func (User) Fields() []ent.Field {
@@ -216,7 +212,7 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-The generated struct for the `User` entity will be as follows:
+`User` 生成的结构体如下：
 
 ```go
 // ent/user.go
@@ -230,10 +226,9 @@ type User struct {
 }
 ```
 
-## Immutable
+## 不可变字段
 
-Immutable fields are fields that can be set only in the creation of the entity.
-i.e., no setters will be generated for the entity updater.
+`Immutable`, 不可变字段是指其值只能在创建实体时赋值的字段。即，不会为该字段生成更新方法。
 
 ```go
 // Fields of the user.
@@ -247,9 +242,9 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-## Uniqueness
-Fields can be defined as unique using the `Unique` method.
-Note that unique fields cannot have default values.
+## 唯一性
+
+可以通过 `Unique` 方法将字段定义为唯一的（唯一索引）。需要注意的是唯一字段不能有默认值。
 
 ```go
 // Fields of the user.
@@ -262,10 +257,10 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-## Storage Key
+## 存储键
 
-Custom storage name can be configured using the `StorageKey` method.  
-It's mapped to a column name in SQL dialects and to property name in Gremlin.
+可以通过 `StorageKey` 方法自定义存储名。
+在 SQL 中，会将字段名映射为列名；在 Gremlin 中，会将字段名映射为属性名。
 
 ```go
 // Fields of the user.
@@ -277,17 +272,17 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-## Indexes
-Indexes can be defined on multi fields and some types of edges as well.
-However, you should note, that this is currently an SQL-only feature.
+## 索引
 
-Read more about this in the [Indexes](schema-indexes.md) section.
+索引可以被定义在多个字段中，以及某些类型的边。
+然而，你需要注意，目前只有 SQL 支持索引特性。
 
-## Struct Tags
+更多关于索引的内容，可以查阅 [索引](schema-indexes.md) 部分。
 
-Custom struct tags can be added to the generated entities using the `StructTag`
-method. Note that if this option was not provided, or provided and did not
-contain the `json` tag, the default `json` tag will be added with the field name.
+## 标签
+
+可以使用 `StructTag` 方法为生成的实体添加标签。
+注意，如果没有提供或者提供的标签不包含 `json`, 那么 `entc` 在生成代码时，会添加默认的 `json` 标签。
 
 ```go
 // Fields of the user.
@@ -299,10 +294,10 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-## Additional Struct Fields
+## 其它结构体字段
 
-By default, `entc` generates the entity model with fields that are configured in the `schema.Fields` method.
-For example, given this schema configuration:
+默认情况下，`entc` 会根据 `schema.Fields` 方法中配置的字段生成实体模型。
+例如，给定如下模式配置：
 
 ```go
 // User schema.
@@ -322,7 +317,7 @@ func (User) Fields() []ent.Field {
 }
 ```
 
-The generated model will be as follows:
+生成的实体如下：
 
 ```go
 // User is the model entity for the User schema.
@@ -334,8 +329,7 @@ type User struct {
 }
 ```
 
-In order to add additional fields to the generated struct **that are not stored in the database**,
-use [external templates](code-gen.md/#external-templates). For example:
+为了将 **不存储在数据库中的字段** 生成到实体中，请使用 [外部模板](code-gen.md/#external-templates). 例如：
 
 ```gotemplate
 {{ define "model/fields/additional" }}
@@ -346,7 +340,7 @@ use [external templates](code-gen.md/#external-templates). For example:
 {{ end }}
 ```
 
-The generated model will be as follows:
+生成的实体如下：
 
 ```go
 // User is the model entity for the User schema.
@@ -360,12 +354,11 @@ type User struct {
 }
 ```
 
-## Sensitive Fields
+## 脱敏
 
-String fields can be defined as sensitive using the `Sensitive` method. Sensitive fields
-won't be printed and they will be omitted when encoding.  
+可以使用 `Sensitive` 方法将 String 字段设置为敏感字段。敏感字段不会被打印，在编码时也会被忽略。
 
-Note that sensitive fields cannot have struct tags.
+注意：敏感字段不能有 struct 标签（StructTag 方法）。
 
 ```go
 // User schema.
