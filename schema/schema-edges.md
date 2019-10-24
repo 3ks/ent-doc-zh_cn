@@ -3,16 +3,15 @@ id: schema-edges
 title: Edges
 ---
 
-## Quick Summary
+## 简介
 
-Edges are the relations (or associations) of entities. For example, user's pets, or group's users.
-
+边，是实体间的关系（或者是关联）。例如，用户的宠物，群组的用户（成员）。
 
 ![er-group-users](https://entgo.io/assets/er_user_pets_groups.png)
 
-In the example above, you can see 2 relations declared using edges. Let's go over them.
+在上面的例子中，你可以看到两个使用边声明的关系。让我们来实现他们。
 
-1\. `pets` / `owner` edges; user's pets and pet's owner - 
+1\. `pets` / `owner` 边; 用户的宠物和宠物的主人： 
 
 `ent/schema/user.go`
 ```go
@@ -75,20 +74,16 @@ func (Pet) Edges() []ent.Edge {
 }
 ```
 
-As you can see, a `User` entity can **have many** pets, but a `Pet` entity can **have only one** owner.  
-In relationship definition, the `pets` edge is a *O2M* (one-to-many) relationship, and the `owner` edge
-is a *M2O* (many-to-one) relationship.
+如你所见，一个 `User` 实体可以拥有 **多个** `Pet`，但是一个 `Pet` 只能被 **一个** `User` 拥有。
+在关系定义时，`pets` 这条边是一个 *02M*（一对多）关系，`owner` 这条边是一个 *M20*（多对一）关系。
 
-The `User` schema **owns** the `pets/owner` relationship because it uses `edge.To`, and the `Pet` schema
-just has a back-reference to it, declared using `edge.From` with the `Ref` method.
+`User` 模式拥有 `pets/owner` 关系，因为它使用了 `edge.To`，而 `Pet` 模式只是通过 `edge.From` 和 `Ref` 方法反向引用了 `User`.
 
-The `Ref` method describes which edge of the `User` schema we're referencing because there can be multiple
-references from one schema to other. 
+因为从一个模式到另一个模式可以有多个引用，所以用 `Ref` 方法指明 `Pet` 想要引用 `User` 中的哪一条边，
 
-The cardinality of the edge/relationship can be controlled using the `Unique` method, and it's explained
-more widely below. 
+可以使用 `Unique` 方法控制边（关系）的类型，下面会有更多的说明。
 
-2\. `users` / `groups` edges; group's users and user's groups - 
+2\. `users` / `groups` 边; 群组包含的用户和用户所属的群组。 
 
 `ent/schema/group.go`
 ```go
@@ -151,18 +146,16 @@ func (User) Edges() []ent.Edge {
 }
 ```
 
-As you can see, a Group entity can **have many** users, and a User entity can have **have many** groups.  
-In relationship definition, the `users` edge is a *M2M* (many-to-many) relationship, and the `groups`
-edge is also a *M2M* (many-to-many) relationship.
+如你所见，一个群组实体可以有 **多个** 用户，并且一个用户也可以属于 **多个** 群组。
+在关系定义时，`users` 这条边是一个 *M2M*（多对多）关系，`groups` 这条件也是一个 *M2M* 的关系。 
 
-## To and From
+## To 和 From
 
-`edge.To` and `edge.From` are the 2 builders for creating edges/relations.
+`edge.To` 和 `edge.From` 是两个用于创建边（关系）的构建器.
 
-A schema that defines an edge using the `edge.To` builder owns the relation,
-unlike using the `edge.From` builder that gives only a back-reference for the relation (with a different name).
+在一个关系中，使用 `edge.To` 定义边的模式，拥有该关系；而使用 `edge.From` 定义边的模式；只是反向引用了该关系。
 
-Let's go over a few examples that show how to define different relation types using edges.
+继续看一些例子，这些例子示范了如何使用边定义不同的关系。
 
 ## Relationship
 
@@ -175,15 +168,13 @@ Let's go over a few examples that show how to define different relation types us
 - [M2M Same Type](#m2m-same-type)
 - [M2M Bidirectional](#m2m-bidirectional)
 
-## O2O Two Types
+## 两种类型的一对一关系
 
 ![er-user-card](https://entgo.io/assets/er_user_card.png)
 
-In this example, a user **has only one** credit-card, and a card **has only one** owner.
+在这个例子中，一个用户只有 **一张** 信用卡，一张信用卡只能有 **一个** 户主。 
 
-The `User` schema defines an `edge.To` card named `card`, and the `Card` schema
-defines a back-reference to this edge using `edge.From` named `owner`. 
-
+在 `User` 模式中使用 `edge.To` 为信用卡定义一条名为 `card` 的边。并在 `Card` 模式中使用 `edge.From` 为用户定义一条名为 `owner` 的逆边。
 
 `ent/schema/user.go`
 ```go
@@ -204,15 +195,14 @@ func (Card) Edges() []ent.Edge {
 		edge.From("owner", User.Type).
 			Ref("card").
 			Unique().
-			// We add the "Required" method to the builder
-			// to make this edge required on entity creation.
-			// i.e. Card cannot be created without its owner.
+            // 我们在构建器中添加 `Required` 方法。
+            // 使得创建实体时也必须满足这条边，即：信用卡在创建时，不能没有户主。
 			Required(),
 	}
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
 	a8m, err := client.User.
@@ -234,15 +224,13 @@ func Do(ctx context.Context, client *ent.Client) error {
     	return fmt.Errorf("creating card: %v", err)
     }
 	log.Println("card:", card1)
-	// Only returns the card of the user,
-	// and expects that there's only one.
+	// 返回满足条件的用户的信用卡，并且期望的数量是 1.
 	card2, err := a8m.QueryCard().Only(ctx)
 	if err != nil {
 		return fmt.Errorf("querying card: %v", err)
     }
 	log.Println("card:", card2)
-	// The Card entity is able to query its owner using
-	// its back-reference.
+    // 在信用卡实体中，可以通过反向引用查询其户主。
 	owner, err := card2.QueryOwner().Only(ctx)
 	if err != nil {
 		return fmt.Errorf("querying owner: %v", err)
@@ -252,14 +240,14 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2o2types).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2o2types).
 
-## O2O Same Type
+## 同类型的一对一关系
 
 ![er-linked-list](https://entgo.io/assets/er_linked_list.png)
 
-In this linked-list example, we have a **recursive relation** named `next`/`prev`. Each node in the list can
-**have only one** `next` node. If a node A points (using `next`) to node B, B can get its pointer using `prev` (the back-reference edge).   
+在这个链表例子中，我们有一个名为 `next`/`prev` 的递归关系。链表中的每个节点都只有 **一个** `next`和 `prev` 节点。
+如果，节点 A 可以通过 `next` 指向 节点 B，则节点 B 也可以通过 `prev`(反向引用) 指向节点 A。
 
 `ent/schema/node.go`
 ```go
@@ -277,19 +265,14 @@ func (Node) Edges() []ent.Edge {
 As you can see, in cases of relations of the same type, you can declare the edge and its
 reference in the same builder.
 
-```diff
+
+```go
 func (Node) Edges() []ent.Edge {
 	return []ent.Edge{
-+		edge.To("next", Node.Type).
-+			Unique().
-+			From("prev").
-+			Unique(),
-
--		edge.To("next", Node.Type).
--			Unique(),
--		edge.From("prev", Node.Type).
--			Ref("next).
--			Unique(),
+		edge.To("next", Node.Type).
+			Unique().
+			From("prev").
+			Unique(),
 	}
 }
 ```
@@ -529,17 +512,12 @@ func (Node) Edges() []ent.Edge {
 As you can see, in cases of relations of the same type, you can declare the edge and its
 reference in the same builder.
 
-```diff
+```go
 func (Node) Edges() []ent.Edge {
 	return []ent.Edge{
-+		edge.To("children", Node.Type).
-+			From("parent").
-+			Unique(),
-
--		edge.To("children", Node.Type),
--		edge.From("parent", Node.Type).
--			Ref("children").
--			Unique(),
+		edge.To("children", Node.Type).
+			From("parent").
+			Unique(),
 	}
 }
 ```
@@ -728,15 +706,11 @@ func (User) Edges() []ent.Edge {
 As you can see, in cases of relations of the same type, you can declare the edge and its
 reference in the same builder.
 
-```diff
+```go
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-+		edge.To("following", User.Type).
-+			From("followers"),
-
--		edge.To("following", User.Type),
--		edge.From("followers", User.Type).
--			Ref("following"),
+		edge.To("following", User.Type).
+			From("followers"),
 	}
 }
 ```
