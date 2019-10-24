@@ -3,9 +3,9 @@ id: schema-config
 title: Config
 ---
 
-## Custom Table Name
+## 自定义表名
 
-A custom table name can be provided for types using the `Table` option as follows:
+可以像下面的例子一样，使用 `Table` 选项自定义表名。
 
 ```go
 package schema
