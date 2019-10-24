@@ -262,22 +262,28 @@ func (Node) Edges() []ent.Edge {
 }
 ```
 
-As you can see, in cases of relations of the same type, you can declare the edge and its
-reference in the same builder.
+如你所见，在同类型关系的情况下，可以在一个构建器内声明边及其引用。
 
 
-```go
+```diff
 func (Node) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("next", Node.Type).
-			Unique().
-			From("prev").
-			Unique(),
++		edge.To("next", Node.Type).
++			Unique().
++			From("prev").
++			Unique(),
+
+-      // 不必写两次。
+-		edge.To("next", Node.Type).
+-			Unique(),
+-		edge.From("prev", Node.Type).
+-			Ref("next).
+-			Unique(),
 	}
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
@@ -289,7 +295,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 		return fmt.Errorf("creating the head: %v", err)
 	}
 	curr := head
-	// Generate the following linked-list: 1<->2<->3<->4<->5.
+	// 下面的代码会生成链表： 1<->2<->3<->4<->5.
 	for i := 0; i < 4; i++ {
 		curr, err = client.Node.
 			Create().
@@ -301,14 +307,14 @@ func Do(ctx context.Context, client *ent.Client) error {
 		}
 	}
 
-	// Loop over the list and print it. `FirstX` panics if an error occur.
+	// 遍历并打印列表. 如果遇到错误 `FirstX` 会 panics.
 	for curr = head; curr != nil; curr = curr.QueryNext().FirstX(ctx) {
 		fmt.Printf("%d ", curr.Value)
 	}
 	// Output: 1 2 3 4 5
 
-	// Make the linked-list circular:
-	// The tail of the list, has no "next".
+	// 构建循环链表:
+	// 链表的最后一个元素，没有 "next".
 	tail, err := client.Node.
 		Query().
 		Where(node.Not(node.HasNext())).
@@ -320,7 +326,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return err
 	}
-	// Check that the change actually applied:
+	// 检查修改是否生效：
 	prev, err := head.QueryPrev().Only(ctx)
 	if err != nil {
 		return fmt.Errorf("getting head's prev: %v", err)
@@ -331,16 +337,16 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2o2recur).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2o2recur).
 
-## O2O Bidirectional
+## 双向的一对一关系
 
 ![er-user-spouse](https://entgo.io/assets/er_user_spouse.png)
 
-In this user-spouse example, we have a **symmetric O2O relation** named `spouse`. Each user can **have only one** spouse.
-If user A sets its spouse (using `spouse`) to B, B can get its spouse using the `spouse` edge.
+在这个用户-配偶例子中，我们有一个名为 `spouse` 的 **对称一对一** 关系。每个用户只能有 **一个配偶**。
+如果用户 A 的配偶是（使用 `spouse` 关系） 是 B，那么也可以得知 B 的配偶（使用 `spouse` 关系）。 
 
-Note that there are no owner/inverse terms in cases of bidirectional edges.
+注意，在双向关系中，不存在拥有/属于这种说法。
 
 `ent/schema/user.go`
 ```go
@@ -353,7 +359,7 @@ func (User) Edges() []ent.Edge {
 }
 ```
 
-The API for interacting with this edge is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
@@ -375,8 +381,8 @@ func Do(ctx context.Context, client *ent.Client) error {
 		return fmt.Errorf("creating user: %v", err)
 	}
 
-	// Query the spouse edge.
-	// Unlike `Only`, `OnlyX` panics if an error occurs.
+	// 查询名为 配偶 的边
+    // 不同于 `Only`, `OnlyX`遇到错误会引起 panics. 
 	spouse := nati.QuerySpouse().OnlyX(ctx)
 	fmt.Println(spouse.Name)
 	// Output: a8m
@@ -385,8 +391,8 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println(spouse.Name)
 	// Output: nati
 
-	// Query how many users have a spouse.
-	// Unlike `Count`, `CountX` panics if an error occurs.
+	// 查询有配偶用户的数量。
+    // 不同于 `Count`, `CountX`遇到错误会引起 panics. 
 	count := client.User.
 		Query().
 		Where(user.HasSpouse()).
@@ -394,7 +400,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println(count)
 	// Output: 2
 
-	// Get the user, that has a spouse with name="a8m".
+    // 获取有配偶，且其配偶姓名为 "a8m" 的用户。
 	spouse = client.User.
 		Query().
 		Where(user.HasSpouseWith(user.Name("a8m"))).
@@ -405,17 +411,16 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2obidi).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2obidi).
 
-## O2M Two Types
+## 不同类型的一对多关系
 
 ![er-user-pets](https://entgo.io/assets/er_user_pets.png)
 
-In this user-pets example, we have a O2M relation between user and its pets.
-Each user **has many** pets, and a pet **has one** owner.
-If user A adds a pet B using the `pets` edge, B can get its owner using the `owner` edge (the back-reference edge).
+在这个 用户-宠物 的例子中，用户和宠物之间存在一个 O2M （一对多）关系。
+每个用户可以有 **多个** 宠物，但是一个宠物只有 **一个** 主人（用户）。如果用户 A 通过 `pets` 边添加了一个宠物 B，那么，宠物 B 可以通过 `owner` 边（反向引用边）找到他的主人。
 
-Note that this relation is also a M2O (many-to-one) from the point of view of the `Pet` schema. 
+注意，从 `Pet` （宠物）的角度来说，这就是多对一的关系（M20,many-to-one）。 
 
 `ent/schema/user.go`
 ```go
@@ -439,11 +444,11 @@ func (Pet) Edges() []ent.Edge {
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
-	// Create the 2 pets.
+	// 创建两个宠物。
 	pedro, err := client.Pet.
 		Create().
 		SetName("pedro").
@@ -458,7 +463,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return fmt.Errorf("creating pet: %v", err)
 	}
-	// Create the user, and add its pets on the creation.
+	// 创建用户的同时给他添加两个宠物。
 	a8m, err := client.User.
 		Create().
 		SetAge(30).
@@ -471,12 +476,12 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println("User created:", a8m)
 	// Output: User(id=1, age=30, name=a8m)
 
-	// Query the owner. Unlike `Only`, `OnlyX` panics if an error occurs.
+    // 查询主人，不同于 `Only`, `OnlyX` 遇到错误时会引起 panics.
 	owner := pedro.QueryOwner().OnlyX(ctx)
 	fmt.Println(owner.Name)
 	// Output: a8m
 
-	// Traverse the sub-graph. Unlike `Count`, `CountX` panics if an error occurs.
+    // 遍历子图，不同于 `Count`, `CountX` 遇到错误时会引起 panics.
 	count := pedro.
 		QueryOwner(). // a8m
 		QueryPets().  // pedro, lola
@@ -486,16 +491,19 @@ func Do(ctx context.Context, client *ent.Client) error {
 	return nil
 }
 ```
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2m2types).
 
-## O2M Same Type
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2m2types).
+
+## 同类型的一对多关系
 
 ![er-tree](https://entgo.io/assets/er_tree.png)
 
 In this example, we have a recursive O2M relation between tree's nodes and their children (or their parent).  
 Each node in the tree **has many** children, and **has one** parent. If node A adds B to its children,
 B can get its owner using the `owner` edge.
-
+这个例子中，在树的节点及其子节点（或父节点）之间存在一对多（O2M）关系的关系。
+树中的每个节点有 **多个** 子节点，但是它只有 **一个** 父节点。
+如果节点 A 有一个子节点 B，那么节点 B 可以通过 `owner` 边找到节点 A。
 
 `ent/schema/node.go`
 ```go
@@ -509,20 +517,25 @@ func (Node) Edges() []ent.Edge {
 }
 ```
 
-As you can see, in cases of relations of the same type, you can declare the edge and its
-reference in the same builder.
+如你所见，在同类型关系的情况下，可以在一个构建器内声明边及其引用。
 
-```go
+```diff
 func (Node) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("children", Node.Type).
-			From("parent").
-			Unique(),
++		edge.To("children", Node.Type).
++			From("parent").
++			Unique(),
+
+-      // 不必写两次。
+-		edge.To("children", Node.Type),
+-		edge.From("parent", Node.Type).
+-			Ref("children").
+-			Unique(),
 	}
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
@@ -533,7 +546,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return fmt.Errorf("creating the root: %v", err)
 	}
-	// Add additional nodes to the tree:
+	// 构建一颗这样的树：
 	//
 	//       2
 	//     /   \
@@ -541,7 +554,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	//        /   \
 	//       3     5
 	//
-	// Unlike `Create`, `CreateX` panics if an error occurs.
+	// 不同于 `Create`, `CreateX` 遇到错误时会引起 panics.
 	n1 := client.Node.
 		Create().
 		SetValue(1).
@@ -566,19 +579,21 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println("Tree leafs", []int{n1.Value, n3.Value, n5.Value})
 	// Output: Tree leafs [1 3 5]
 
-	// Get all leafs (nodes without children).
+    // 获取所有叶子节点（没有子节点的节点）。
 	// Unlike `Int`, `IntX` panics if an error occurs.
+	// 不同于 `Int`, `IntX` 遇到错误时会引起 panics.
 	ints := client.Node.
-		Query().                             // All nodes.
-		Where(node.Not(node.HasChildren())). // Only leafs.
-		Order(ent.Asc(node.FieldValue)).     // Order by their `value` field.
-		GroupBy(node.FieldValue).            // Extract only the `value` field.
+		Query().                             // 全部节点.
+		Where(node.Not(node.HasChildren())). // 叶子节点.
+		Order(ent.Asc(node.FieldValue)).     // 根据 `value` 字段升序排序.
+		GroupBy(node.FieldValue).            // 仅提取 `value` 字段。
 		IntsX(ctx)
 	fmt.Println(ints)
 	// Output: [1 3 5]
 
-	// Get orphan nodes (nodes without parent).
+	// 获取孤儿节点（没有父节点的节点）。
 	// Unlike `Only`, `OnlyX` panics if an error occurs.
+	// 不用于 `Only`, `OnlyX` 遇到错误时会引起 panics.
 	orphan := client.Node.
 		Query().
 		Where(node.Not(node.HasParent())).
@@ -590,14 +605,14 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2mrecur).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/o2mrecur).
 
-## M2M Two Types
+## 不同类型的多对多关系
 
 ![er-user-groups](https://entgo.io/assets/er_user_groups.png)
 
-In this groups-users example, we have a M2M relation between groups and their users.
-Each group **has many** users, and each user can be joined to **many** groups.
+在这个例子中，在群组和用户之间存在一个多对多（M2M）的关系。
+每个群主可以有 **多个** 用户，每个用户也可以加入 **多个** 群组。
 
 `ent/schema/group.go`
 ```go
@@ -620,11 +635,11 @@ func (User) Edges() []ent.Edge {
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
-	// Unlike `Save`, `SaveX` panics if an error occurs.
+	// 不同于 `Save`, `SaveX` 遇到错误时会引起 panics.
 	hub := client.Group.
 		Create().
 		SetName("GitHub").
@@ -646,7 +661,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 		AddGroups(hub).
 		SaveX(ctx)
 
-	// Query the edges.
+	// 关系查询
 	groups, err := a8m.
 		QueryGroups().
 		All(ctx)
@@ -665,7 +680,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println(groups)
 	// Output: [Group(id=1, name=GitHub)]
 
-	// Traverse the graph.
+	// 图遍历
 	users, err := a8m.
 		QueryGroups().                                           // [hub, lab]
 		Where(group.Not(group.HasUsersWith(user.Name("nati")))). // [lab]
@@ -682,14 +697,14 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/m2m2types).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/m2m2types).
 
-## M2M Same Type
+## 同类型的多对多关系
 
 ![er-following-followers](https://entgo.io/assets/er_following_followers.png)
 
-In this following-followers example, we have a M2M relation between users to their followers. Each user 
-can follow **many** users, and can have **many** followers.
+下面这个 关注-粉丝 的例子，在用户及其粉丝之间存在一个多对多（M2M）的关系。
+每个用户可以关注 **多个** 用户，也可以有 **多个** 粉丝。
 
 `ent/schema/user.go`
 ```go
@@ -703,23 +718,27 @@ func (User) Edges() []ent.Edge {
 ```
 
 
-As you can see, in cases of relations of the same type, you can declare the edge and its
-reference in the same builder.
+如你所见，在同类型关系的情况下，可以在一个构建器内声明边及其引用。
 
-```go
+```diff
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("following", User.Type).
-			From("followers"),
++		edge.To("following", User.Type).
++			From("followers"),
+
+-       // 不必写两次
+-		edge.To("following", User.Type),
+-		edge.From("followers", User.Type).
+-			Ref("following"),
 	}
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
-	// Unlike `Save`, `SaveX` panics if an error occurs.
+	// 不同于 `Save`, `SaveX` 遇到错误时会引起 panics.
 	a8m := client.User.
 		Create().
 		SetAge(30).
@@ -732,7 +751,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 		AddFollowers(a8m).
 		SaveX(ctx)
 
-	// Query following/followers:
+	// 查询关注/粉丝列表:
 
 	flw := a8m.QueryFollowing().AllX(ctx)
 	fmt.Println(flw)
@@ -750,7 +769,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println(flr)
 	// Output: [User(id=1, age=30, name=a8m)]
 
-	// Traverse the graph:
+	// 图遍历:
 
 	ages := nati.
 		QueryFollowers().       // [a8m]
@@ -771,17 +790,19 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/m2mrecur).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/m2mrecur).
 
 
-## M2M Bidirectional
+## 双向的多对多关系
 
 ![er-user-friends](https://entgo.io/assets/er_user_friends.png)
 
 In this user-friends example, we have a **symmetric M2M relation** named `friends`.
 Each user can **have many** friends. If user A becomes a friend of B, B is also a friend of A.
+在这个 用户-朋友 的例子中，存在一个名为 `freiends` 的双向多对多关系。
+每个用户可以有 **多个** 朋友。如果用户 A 是用户 B 的朋友，那么用户 B 也肯定是用户 A 的朋友。
 
-Note that there are no owner/inverse terms in cases of bidirectional edges.
+注意，在双向关系中，不存在拥有/属于这种说法。
 
 `ent/schema/user.go`
 ```go
@@ -793,11 +814,11 @@ func (User) Edges() []ent.Edge {
 }
 ```
 
-The API for interacting with these edges is as follows:
+下面是一些与边交互的 API：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) error {
-	// Unlike `Save`, `SaveX` panics if an error occurs.
+	// 不同于 `Save`, `SaveX` 遇到错误时会引起 panics.
 	a8m := client.User.
 		Create().
 		SetAge(30).
@@ -810,7 +831,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 		AddFriends(a8m).
 		SaveX(ctx)
 
-	// Query friends. Unlike `All`, `AllX` panics if an error occurs.
+	// 查询朋友列表。不同于 `All`, `AllX` 遇到错误是会引起 panics.
 	friends := nati.
 		QueryFriends().
 		AllX(ctx)
@@ -823,7 +844,7 @@ func Do(ctx context.Context, client *ent.Client) error {
 	fmt.Println(friends)
 	// Output: [User(id=2, age=28, name=nati)]
 
-	// Query the graph:
+	// 图遍历：
 	friends = client.User.
 		Query().
 		Where(user.HasFriends()).
@@ -834,12 +855,13 @@ func Do(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/m2mbidi).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/m2mbidi).
 
 
-## Required
+## 必选项
 
 Edges can be defined as required in the entity creation using the `Required` method on the builder.
+可以使用构建器中的 `Required` 方法定义关系，使得实体创建时必须满足该关系。
 
 ```go
 // Edges of the user.
@@ -853,11 +875,10 @@ func (Card) Edges() []ent.Edge {
 }
 ```
 
-If the example above, a card entity cannot be created without its owner. 
+比如说，无法创建一张没有户主的信用卡。 
 
-## Indexes
+## 索引
 
-Indexes can be defined on multi fields and some types of edges as well.
-However, you should note, that this is currently an SQL-only feature.
+可以在多个字段或者某些边上添加索引。但是，需要注意的是，目前只有 SQL 支持索引特性。
 
-Read more about this in the [Indexes](schema-indexes.md) section.
+更多关于索引的内容，可以查阅 [索引](schema-indexes.md) 部分。
