@@ -3,10 +3,8 @@ id: schema-fields
 title: Fields
 ---
 
-## Quick Summary
+## 简介
 
-Fields (or properties) in the schema are the attributes of the vertex. For example, a `User`
-with 4 fields: `age`, `name`, `username` and `created_at`:
 模式中的字段相当于顶点的属性。
 例如，`User` 有 4 个字段： `age`, `name`, `username` 和 `created_at`.
 
