@@ -5,46 +5,42 @@ title: Introduction
 
 ## Installation
 
-`ent` comes with a codegen tool called `entc`. In order to install
-`entc` run the following command:
+`ent` 有一个代码生成工具—— `entc`. 可以通过下面的命令安装 `entc`:
 
 ```bash
 go get github.com/facebookincubator/ent/cmd/entc
 ``` 
 
-## Initialize A New Schema
+## 初始化一个新的模式
 
-In order to generate one or more schema templates, run `entc init` as follows:
+想要生成一个或多个模式模板，可以像下面这样运行 `entc init`:
 
 ```bash
 entc init User Pet
 ```
 
-`init` will create the 2 schemas (`user.go` and `pet.go`) under the `ent/schema` directory.
-If the `ent` directory does not exist, it will create it as well. The convention
-is to have an `ent` directory under the root directory of the project.
+`init` 会在 `ent/schema` 目录下生成两个模式(`user.go` and `pet.go`).
+一般地，`ent` 目录位于项目根目录下，如果 `ent` 目录不存在，`entc` 会自动创建该目录。
 
-## Generate Assets
+## 生成代码
 
-After adding a few [fields](../schema/schema-fields.md) and [edges](../schema/schema-edges.md), you want to generate
-the assets for working with your entities. Run the following command:
+在添加好 [字段](../schema/schema-fields.md) 和 [边](../schema/schema-edges.md)，你可以通过下面的命令生成可以使用的代码。
 
 ```bash
 entc generate ./ent/schema
 ```
 
-The `generate` command generates the following assets for the schemas:
+`generate` 命令生成的代码包含以下内容：
 
-- `Client` and `Tx` objects used for interacting with the graph.
-- CRUD builders for each schema type. See [CRUD](crud.md) for more info.
-- Entity object (Go struct) for each of the schema types.
-- Package containing constants and predicates used for interacting with the builders.
-- A `migrate` package for SQL dialects. See [Migration](../migration/migrate.md) for more info.
+- 用于和图（数据库）交互的 `Client` 和 `Tx`. 
+- 每个模式的增查改删（CRUD）构建器，查看 [增查改删API](crud.md) 详情。
+- 每个模式的实体 (Go struct).
+- 包含用于和构建器交互的常量和条件查询方法。
+- 为 SQL 提供的 `migrate` 包. 查看 [数据库迁移](../migration/migrate.md) 详情。
 
-## Version Compatibility Between `entc` And `ent`
+## `entc` 和 `ent` 的版本兼容性
 
-When working with `entc` in a project, you want to make sure that the version being
-used by `entc` is **identical** to the `ent` version used by your project.
+在一个项目中，你需要确保 `entc` 和 `ent` 的版本是 **完全相同的**。
 
 One of the options for achieving this is asking `go generate` to use the version
 mentioned in the `go.mod` file when running `entc`. If your project does not use
