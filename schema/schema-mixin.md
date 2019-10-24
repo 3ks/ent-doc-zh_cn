@@ -3,9 +3,9 @@ id: schema-mixin
 title: Mixin
 ---
  
-A `Mixin` allows you to create reusable pieces of `ent.Schema` code.
+`Mixin` 允许你创建可重复使用的 `ent.Schema` 的代码。
 
-The `ent.Mixin` interface is as follows:
+`ent.Mixin` 接口定义如下：
 
 ```go
 type Mixin interface {
@@ -13,16 +13,16 @@ type Mixin interface {
 }
 ```
 
-## Example
+## 例子
 
-A common use case for `Mixin` is to mix-in a list of common fields to your schema.
+一个 `Mixin` 的常见用法是，将通用字段与你的模式混合在一起。
 
 ```go
 // -------------------------------------------------
-// Mixin definition
+// Mixin 定义部分
 
-// TimeMixin implements the ent.Mixin for sharing
-// time fields with package schemas.
+// TimeMixin 需要实现 ent.Mixin 接口。
+// 时间字段及其定义。
 type TimeMixin struct{}
 
 func (TimeMixin) Fields() []ent.Field {
@@ -36,8 +36,8 @@ func (TimeMixin) Fields() []ent.Field {
 	}
 }
 
-// DetailsMixin implements the ent.Mixin for sharing
-// entity details fields with package schemas.
+// DetailsMixin 需要实现 ent.Mixin 接口。
+// 详情字段及其定义。
 type DetailsMixin struct{}
 
 func (DetailsMixin) Fields() []ent.Field {
@@ -50,10 +50,10 @@ func (DetailsMixin) Fields() []ent.Field {
 }
 
 // -------------------------------------------------
-// Schema definition
+// Schema 定义部分
 
-// User schema mixed-in the TimeMixin and DetailsMixin fields and therefore
-// has 5 fields: `created_at`, `updated_at`, `age`, `name` and `nickname`.
+// User 混入了 TimeMixin 和 DetailsMixin 字段。
+// 因此 User 有 5 个字段： `created_at`, `updated_at`, `age`, `name` and `nickname`.
 type User struct {
 	ent.Schema
 }
@@ -72,8 +72,8 @@ func (User) Fields() []ent.Field {
 	}
 }
 
-// Pet schema mixed-in the DetailsMixin fields and therefore
-// has 3 fields: `age`, `name` and `weight`.
+// Pet 混入了 DetailsMixin 字段。
+// 因此 Pet 有 3 个字段： `age`, `name` and `weight`.
 type Pet struct {
 	ent.Schema
 }
