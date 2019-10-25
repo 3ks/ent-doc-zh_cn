@@ -3,7 +3,7 @@ id: code-gen
 title: Introduction
 ---
 
-## Installation
+## 安装
 
 `ent` 有一个代码生成工具—— `entc`. 可以通过下面的命令安装 `entc`:
 
@@ -64,7 +64,7 @@ package ent
 
 最后，你可以在项目根目录下运行 `go generate ./ent` ，然后就可以运行 `entc` 工具为项目生成代码了。
 
-## Code Generation Options
+## 代码生成选项
 
 有关代码生成的更多选项，请运行 `entc generate -h`:
 

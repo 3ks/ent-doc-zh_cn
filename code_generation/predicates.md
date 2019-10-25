@@ -23,7 +23,7 @@ title: Predicates
 
 ## 边条件
 
-- **HasEdge**. 满足边，例如：`Pet` 类型定义了 `owner` 边，要查询满足该边（有主人的宠物）的实体：
+- **HasEdge**. 满足边的实体，例如：`Pet` 类型定义了 `owner` 边，要查询满足该边（有主人的宠物）的实体：
 
   ```go
    client.Pet.
@@ -32,7 +32,7 @@ title: Predicates
 		All(ctx)
   ```
 
-- **HasEdgeWith**. 满足边及其条件列表，例如，在满足上一个例子的情况下，还要求主人的姓名为 `a8m`：
+- **HasEdgeWith**. 满足边及其条件的实体列表，例如，在满足上一个例子的情况下，还要求主人的姓名为 `a8m`：
   ```go
    client.Pet.
 		Query().

@@ -6,7 +6,7 @@ title: Transactions
 ## 开始事务
 
 ```go
-// GenTx generates group of entities in a transaction.
+// GenTx 在一个事务中创建多个群组的实体及其用户
 func GenTx(ctx context.Context, client *ent.Client) error {
 	tx, err := client.Tx(ctx)
 	if err != nil {
@@ -19,7 +19,7 @@ func GenTx(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return rollback(tx, fmt.Errorf("failed creating the group: %v", err))
 	}
-	// 为存在添加一个用户
+	// 为群组添加一个用户
 	dan, err := tx.User.
 		Create().
 		SetAge(29).
@@ -48,7 +48,7 @@ func GenTx(ctx context.Context, client *ent.Client) error {
 	return tx.Commit()
 }
 
-// rollback 会调用 tx.Rollback，如果此时发生错误，rollback 会将该错误也包装好。
+// rollback 会调用 tx.Rollback，如果此时发生错误，rollback 会将该错误也包装进去。
 func rollback(tx *ent.Tx, err error) error {
 	if rerr := tx.Rollback(); rerr != nil {
 		err = fmt.Errorf("%v: %v", err, rerr)
