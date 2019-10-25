@@ -3,18 +3,18 @@ id: traversals
 title: Graph Traversal
 ---
 
-For the purpose of the example, we'll generate the following graph:
+为了举例，我们会生成一个下面这样的图：
 
 
 ![er-traversal-graph](https://entgo.io/assets/er_traversal_graph.png)
 
-The first step is to generate the 3 schemas: `Pet`, `User`, `Group`.
+第一步，生成 3 个模式： `Pet`, `User`, `Group`.
 
 ```console
 entc init Pet User Group
 ```
 
-Add the necessary fields and edges for the schemas:
+然后，为模式添加一些必要的字段和边：
 
 `ent/schema/pet.go`
 
@@ -94,7 +94,7 @@ func (Group) Edges() []ent.Edge {
 }
 ``` 
 
-Let's write the code for populating the vertices and the edges to the graph:
+让我们开始编写用于填充图的顶点和边的代码：
 
 ```go
 func Gen(ctx context.Context, client *ent.Client) error {
@@ -105,8 +105,8 @@ func Gen(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return fmt.Errorf("failed creating the group: %v", err)
 	}
-	// Create the admin of the group.
-	// Unlike `Save`, `SaveX` panics if an error occurs.
+	// 为群组添加一个 admin.
+	// 不同于 `Save`, `SaveX` 遇到错误时会引起 panics.
 	dan := client.User.
 		Create().
 		SetAge(29).
@@ -114,7 +114,7 @@ func Gen(ctx context.Context, client *ent.Client) error {
 		AddManage(hub).
 		SaveX(ctx)
 
-	// Create "Ariel" and its pets.
+	// 创建 "Ariel" 用户和他的宠物
 	a8m := client.User.
 		Create().
 		SetAge(30).
@@ -133,7 +133,7 @@ func Gen(ctx context.Context, client *ent.Client) error {
 		SetOwner(a8m).
 		SaveX(ctx)
 
-	// Create "Alex" and its pets.
+	// 创建 "Alex" 用户和他的宠物。
 	alex := client.User.
 		Create().
 		SetAge(37).
@@ -153,25 +153,23 @@ func Gen(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-Let's go over a few traversals, and show the code for them:
+再看一下我们要遍历的图及其代码：
 
 ![er-traversal-graph-gopher](https://entgo.io/assets/er_traversal_graph_gopher.png)
 
-The traversal above starts from a `Group` entity, continues to its `admin` (edge),
-continues to its `friends` (edge), gets their `pets` (edge), gets each pet's `friends` (edge),
-and requests their owners. 
+上面的遍历开始于一个 `Group` 实体：通过 `admin` 边、 `friends` 边、`pets` 边找到他们的宠物，然后再获取每个宠物的朋友（宠物的 `frieds` 边）的主人。
 
 ```go
 func Traverse(ctx context.Context, client *ent.Client) error {
 	owner, err := client.Group.			// GroupClient.
 		Query().                     	// Query builder.
-		Where(group.Name("Github")). 	// Filter only Github group (only 1).
-		QueryAdmin().                	// Getting Dan.
-		QueryFriends().              	// Getting Dan's friends: [Ariel].
-		QueryPets().                 	// Their pets: [Pedro, Xabi].
-		QueryFriends().              	// Pedro's friends: [Coco], Xabi's friends: [].
-		QueryOwner().                	// Coco's owner: Alex.
-		Only(ctx)                    	// Expect only one entity to return in the query.
+		Where(group.Name("Github")). 	// 要求群组名为 Github 
+		QueryAdmin().                	// 找到 Dan.
+		QueryFriends().              	// 找到 Dan 的朋友列表: [Ariel].
+		QueryPets().                 	// 他们的宠物列表: [Pedro, Xabi].
+		QueryFriends().              	// Pedro 的朋友: [Coco], Xabi 的朋友: [].
+		QueryOwner().                	// Coco 的主人: Alex.
+		Only(ctx)                    	// 本次遍历中期望只返回一个实体。
 	if err != nil {
 		return fmt.Errorf("failed querying the owner: %v", err)
 	}
@@ -182,12 +180,11 @@ func Traverse(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-What about the following traversal?
+下面这个图又怎么遍历呢？
 
 ![er-traversal-graph-gopher-query](https://entgo.io/assets/er_traversal_graph_gopher_query.png)
 
-We want to get all pets (entities) that have an `owner` (`edge`) that is a `friend`
-(edge) of some group `admin` (edge).
+我们想获取某个群组的 `admin` 的 `friend` 的全部宠物。
 
 ```go
 func Traverse(ctx context.Context, client *ent.Client) error {
@@ -211,4 +208,4 @@ func Traverse(ctx context.Context, client *ent.Client) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/traversal).
+完整的实例请参考 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/traversal).
