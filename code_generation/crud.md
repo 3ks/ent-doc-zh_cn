@@ -3,16 +3,15 @@ id: crud
 title: CRUD API
 ---
 
-As mentioned in the [introduction](code-gen.md) section, running `entc` on the schemas,
-will generate the following assets:
+如 [代码生成](code-gen.md) 部分描述的那样，定义好模式后，运行 `entc` 可以生成以下内容
 
-- `Client` and `Tx` objects used for interacting with the graph.
-- CRUD builders for each schema type. See [CRUD](crud.md) for more info.
-- Entity object (Go struct) for each of the schema type.
-- Package containing constants and predicates used for interacting with the builders.
-- A `migrate` package for SQL dialects. See [Migration](../migration/migrate.md) for more info.
+- 用于和图（数据库）交互的 `Client` 和 `Tx`. 
+- 每个模式的增查改删（CRUD）构建器，查看 [增查改删API](crud.md) 详情。
+- 每个模式的实体 (Go struct).
+- 包含用于和构建器交互的常量和条件查询方法。
+- 为 SQL 提供的 `migrate` 包. 查看 [数据库迁移](../migration/migrate.md) 详情。
 
-## Create A New Client
+## 创建一个客户端
 
 **MySQL**
 
@@ -78,9 +77,11 @@ func main() {
 }
 ```
 
-## Create An Entity
+## 创建
 
-**Save** a user.
+创建一个实体。
+
+**Save** 创建一个用户.
 
 ```go
 a8m, err := client.User.	// UserClient.
@@ -92,7 +93,7 @@ a8m, err := client.User.	// UserClient.
 	Save(ctx)				// Create and return.
 ```
 
-**SaveX** a user; Unlike **Save**, **SaveX** panics if an error occurs.
+**SaveX** 创建一个用户；不同于 **Save**, **SaveX** 遇到错误时会引起 panics.
 
 ```go
 pedro := client.Pet.	// PetClient.
@@ -102,9 +103,9 @@ pedro := client.Pet.	// PetClient.
 	SaveX(ctx)			// Create and return.
 ```
 
-## Update One
+## 更新
 
-Update an entity that was returned from the database.
+更新一个数据库返回的实体。
 
 ```go
 a8m, err = a8m.Update().	// User update builder.
@@ -115,7 +116,9 @@ a8m, err = a8m.Update().	// User update builder.
 ```
 
 
-## Update By ID
+## 根据 ID 更新
+
+根据 ID 更新一个实体。
 
 ```go
 pedro, err := client.Pet.	// PetClient.
@@ -125,9 +128,9 @@ pedro, err := client.Pet.	// PetClient.
 	Save(ctx)				// Save and return.
 ```
 
-## Update Many
+## 更新多个
 
-Filter using predicates.
+根据条件过滤更新多个实体。
 
 ```go
 n, err := client.User.			// UserClient.
@@ -160,9 +163,9 @@ n, err := client.User.			// UserClient.
 	Save(ctx)					// exec and return.
 ```
 
-## Query The Graph
+## 查询
 
-Get all users with followers.
+Query The Graph. 查询有粉丝的用户。
 ```go
 users, err := client.User.		// UserClient.
 	Query().					// User query builder.
@@ -170,14 +173,14 @@ users, err := client.User.		// UserClient.
 	All(ctx)					// query and return.
 ```
 
-Get all followers of a specific user; Start the traversal from a node in the graph.
+获取某个用户的粉丝列表；从图中的某个节点开始图遍历。
 ```go
 users, err := a8m.
 	QueryFollowers().
 	All(ctx)
 ```
 
-Get all pets of the followers of a user.
+获取某个用户的所有粉丝的所有宠物。
 ```go
 users, err := a8m.
 	QueryFollowers().
@@ -185,7 +188,7 @@ users, err := a8m.
 	All(ctx)
 ```
 
-Get all pet names.
+获取所有宠物的名字。
 
 ```go
 names, err := client.Pet.
@@ -194,7 +197,7 @@ names, err := client.Pet.
 	Strings(ctx)
 ```
 
-Get all pet names and ages.
+获取所有宠物的名字和年龄。
 
 ```go
 var v []struct {
@@ -210,11 +213,11 @@ if err != nil {
 }
 ```
 
-More advance traversals can be found in the [next section](traversals.md). 
+你可以在 [遍历](traversals.md) 找到更多遍历的高级用法。
 
-## Delete One 
+## 删除
 
-Delete an entity.
+删除一个实体。
 
 ```go
 err := client.User.
@@ -230,9 +233,9 @@ err := client.User.
 	Exec(ctx)
 ```
 
-## Delete Many
+## 删除多个
 
-Delete using predicates.
+根据条件过滤删除多个实体。
 
 ```go
 err := client.File.
