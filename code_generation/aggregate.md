@@ -5,7 +5,7 @@ title: Aggregation
 
 ## Group By
 
-Group by `name` and `age` fields of all users, and sum their total age.
+所有用户按照 `name` 和 `age` 分组（Group by），并计算他们的年龄之和。
 
 ```go
 package main
@@ -31,7 +31,7 @@ func Do(ctx context.Context, client *ent.Client) {
 }
 ```
 
-Group by one field.
+根据单个字段分组。
 
 ```go
 package main
