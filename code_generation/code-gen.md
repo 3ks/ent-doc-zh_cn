@@ -13,18 +13,18 @@ go get github.com/facebookincubator/ent/cmd/entc
 
 ## 初始化一个新的模式
 
-想要生成一个或多个模式模板，可以像下面这样运行 `entc init`:
+想要生成一个或多个模式的模板，可以像下面这样运行 `entc init`:
 
 ```bash
 entc init User Pet
 ```
 
-`init` 会在 `ent/schema` 目录下生成两个模式(`user.go` and `pet.go`).
+`init` 会在 `ent/schema` 目录下生成两个模式(`user.go` 和 `pet.go`).
 一般地，`ent` 目录位于项目根目录下，如果 `ent` 目录不存在，`entc` 会自动创建该目录。
 
 ## 生成代码
 
-在添加好 [字段](../schema/schema-fields.md) 和 [边](../schema/schema-edges.md)，你可以通过下面的命令生成可以使用的代码。
+在添加好 [字段](../schema/schema-fields.md) 和 [边](../schema/schema-edges.md) 以后，你可以通过下面的命令生成可以使用的代码。
 
 ```bash
 entc generate ./ent/schema
@@ -40,23 +40,21 @@ entc generate ./ent/schema
 
 ## `entc` 和 `ent` 的版本兼容性
 
-在一个项目中，你需要确保 `entc` 和 `ent` 的版本是 **完全相同的**。
+在一个项目中，你需要确保 `entc` 和 `ent` 的版本是 **完全相同的**。一个可选的办法是，运行 `entc` 时，要求 `go generate` 使用 `go.mod` 文件中中使用的版本。
 
-One of the options for achieving this is asking `go generate` to use the version
-mentioned in the `go.mod` file when running `entc`. If your project does not use
-[Go modules](https://github.com/golang/go/wiki/Modules#quick-start), setup one as follows:
+如果你的项目还没有使用 [Go modules](https://github.com/golang/go/wiki/Modules#quick-start), 你应该做的第一步是:
 
 ```console
 go mod init <project>
 ```
 
-And then, re-run the following command in order to add `ent` to your `go.mod` file:
+然后，再运行下面的命令将 `ent` 添加至 `go.mod` 文件：
 
 ```console
 go get github.com/facebookincubator/ent/cmd/entc
 ```
 
-Add a `generate.go` file to your project under `<project>/ent`:
+添加一个 `generate.go` 文件到 `<project>/ent` 目录下：
 
 ```go
 package ent
@@ -64,12 +62,11 @@ package ent
 //go:generate go run github.com/facebookincubator/ent/cmd/entc generate ./schema
 ```
 
-Finally, you can run `go generate ./ent` from the root directory of your project
-in order to run `entc` code generation on your project schemas.
+最后，你可以在项目根目录下运行 `go generate ./ent` ，然后就可以运行 `entc` 工具为项目生成代码了。
 
 ## Code Generation Options
 
-For more info about codegen options, run `entc generate -h`:
+有关代码生成的更多选项，请运行 `entc generate -h`:
 
 ```console
 generate go code for the schema directory
@@ -90,22 +87,19 @@ Flags:
       --template strings      external templates to execute
 ```
 
-## Storage Options
+## 储存选项
 
-`entc` can generate assets for both SQL and Gremlin dialect. The default dialect is SQL.
+`entc` 可以为 SQL 和 Gremlin 生成代码，默认是为 SQL 生成代码。
 
-## External Templates
+## 外部模板
 
-`entc` accepts external Go templates to execute. If the template name is already defined by
-`entc`, it will override the existing one. Otherwise, it will write the execution output to
-a file with the same name as the template.
+`entc` 可以接受运行 Go 外部模板。如果外部模板名与 `entc` 的某个模板名重复，那么外部模板会覆盖 `entc` 的模板。否则，`entc` 会运行并输出该模板的内容到一个与该模板同名的文件。
 
-Example of a custom template provides a `Node` API for GraphQL - 
-[Github](https://github.com/facebookincubator/ent/blob/master/entc/integration/template/ent/template/node.tmpl).
+这里有一个 GraphQL API 自定义模板的例子- [Github](https://github.com/facebookincubator/ent/blob/master/entc/integration/template/ent/template/node.tmpl).
 
-## Use `entc` As A Package
+## 通过包调用 `entc`
 
-Another option for running `entc` is to use it as a package as follows:
+另一种运行 `entc` 的方法是像下面的代码一样通过包调用：
 
 ```go
 package main
@@ -129,18 +123,18 @@ func main() {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/entcpkg).
+完整的实例请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/entcpkg).
 
 
-## Schema Description
+## 模式的描述
 
-In order to get a description of your graph schema, run:
+想要获取模式的描述，请运行：
 
 ```bash
 entc describe ./ent/schema
 ```
 
-An example for the output is as follows:
+输出实例如下：
 
 ```console
 Pet:
