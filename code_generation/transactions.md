@@ -3,7 +3,7 @@ id: transactions
 title: Transactions
 ---
 
-## Starting A Transaction
+## 开始事务
 
 ```go
 // GenTx generates group of entities in a transaction.
@@ -19,7 +19,7 @@ func GenTx(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return rollback(tx, fmt.Errorf("failed creating the group: %v", err))
 	}
-	// Create the admin of the group.
+	// 为存在添加一个用户
 	dan, err := tx.User.
 		Create().
 		SetAge(29).
@@ -29,7 +29,7 @@ func GenTx(ctx context.Context, client *ent.Client) error {
 	if err != nil {
 		return rollback(tx, err)
 	}
-	// Create user "Ariel".
+	// 创建一个用户 "Ariel".
 	a8m, err := tx.User.
 		Create().
 		SetAge(30).
@@ -44,12 +44,11 @@ func GenTx(ctx context.Context, client *ent.Client) error {
 	// Output:
 	// User(id=2, age=30, name=Ariel)
 	
-	// Commit the transaction.
+	// 提交事务
 	return tx.Commit()
 }
 
-// rollback calls to tx.Rollback and wraps the given error
-// with the rollback error if occurred.
+// rollback 会调用 tx.Rollback，如果此时发生错误，rollback 会将该错误也包装好。
 func rollback(tx *ent.Tx, err error) error {
 	if rerr := tx.Rollback(); rerr != nil {
 		err = fmt.Errorf("%v: %v", err, rerr)
@@ -58,41 +57,41 @@ func rollback(tx *ent.Tx, err error) error {
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/traversal).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/traversal).
 
-## Transactional Client
+## 事务客户端
 
-Sometimes, you have an existing code that already works with `*ent.Client`, and you want to change it (or wrap it)
-to interact with transactions. For these use cases, you have a transactional client. An `*ent.Client` that you can
-get from an existing transaction.
+Transactional Client，事务客户端。
+有时候，你的现有代码已经使用了 `*ent.Client`，但是你想将他修改（或包装）为使用事务客户端实现。
+对于这种情况：你可以从现有的事务客户端获取一个 `*ent.Client`： 
 
 ```go
-// WrapGen wraps the existing "Gen" function in a transaction.
+// WrapGen 函数将现有的 "Gen" 函数包装成事务
 func WrapGen(ctx context.Context, client *ent.Client) error {
 	tx, err := client.Tx(ctx)
 	if err != nil {
 		return err
 	}
 	txClient := tx.Client()
-	// Use the "Gen" below, but give it the transactional client; no code changes to "Gen".
+	//下面会调用 "Gen"，但是传输一个事务客户端给它；这样就不用修改 "Gen" 函数的代码。
 	if err := Gen(ctx, txClient); err != nil {
 		return rollback(tx, err)
 	}
 	return tx.Commit()
 }
 
-// Gen generates a group of entities.
+// Gen 函数用于创建一个群组实体。
 func Gen(ctx context.Context, client *ent.Client) error {
 	// ...
 	return nil
 }
 ```
 
-The full example exists in [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/traversal).
+完整的例子请查看 [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/traversal).
 
-## Best Practices
+## 最佳实践
 
-Reusable function that runs callbacks in a transaction:
+在事务中运行回调函数：
 
 ```go
 func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) error {
@@ -119,7 +118,7 @@ func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) 
 }
 ```
 
-Its usage:
+用法：
 
 ```go
 func Do(ctx context.Context, client *ent.Client) {
