@@ -3,27 +3,27 @@ id: predicates
 title: Predicates
 ---
 
-## Field Predicates
+## 字段条件
 
-- **Bool**:
+- **布尔**:
   - =, !=
-- **Numeric**:
+- **数值**:
   - =, !=, >, <, >=, <=,
   - IN, NOT IN
-- **Time**:
+- **时间**:
   - =, !=, >, <, >=, <=
   - IN, NOT IN
-- **String**:
+- **字符**:
   - =, !=, >, <, >=, <=
   - IN, NOT IN
   - Contains, HasPrefix, HasSuffix
   - ContainsFold, EqualFold (**SQL** specific)
-- **Optional** fields:
+- **可选** 字段:
   - IsNil, NotNil
 
-## Edge Predicates
+## 边条件
 
-- **HasEdge**. For example, for edge named `owner` of type `Pet`, use:
+- **HasEdge**. 满足边，例如：`Pet` 类型定义了 `owner` 边，要查询满足该边（有主人的宠物）的实体：
 
   ```go
    client.Pet.
@@ -32,8 +32,7 @@ title: Predicates
 		All(ctx)
   ```
 
-- **HasEdgeWith**. Add list of predicates for edge predicate.
-
+- **HasEdgeWith**. 满足边及其条件列表，例如，在满足上一个例子的情况下，还要求主人的姓名为 `a8m`：
   ```go
    client.Pet.
 		Query().
@@ -42,7 +41,7 @@ title: Predicates
   ```
 
 
-## Negation (NOT)
+## 非 (NOT)
 
 ```go
 client.Pet.
@@ -51,7 +50,7 @@ client.Pet.
 	All(ctx)
 ```
 
-## Disjunction (OR)
+## 或 (OR)
 
 ```go
 client.Pet.
@@ -65,7 +64,7 @@ client.Pet.
 	All(ctx)
 ```
 
-## Conjunction (AND)
+## 与 (AND)
 
 ```go
 client.Pet.
@@ -79,9 +78,9 @@ client.Pet.
 	All(ctx)
 ```
 
-## Custom Predicates
+## 自定义条件
 
-Custom predicates can be useful if you want to write your own dialect-specific logic.
+自定义条件，可以让你自行书写满足所使用方言的查询条件。
 
 ```go
 pets := client.Pet.
