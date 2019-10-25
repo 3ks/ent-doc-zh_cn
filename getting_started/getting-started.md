@@ -592,4 +592,4 @@ func CreateGraph(ctx context.Context, client *ent.Client) error {
     }
     ```
 
-完整实例请参考： [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/start).
+完整的例子请参考： [GitHub](https://github.com/facebookincubator/ent/tree/master/examples/start).
